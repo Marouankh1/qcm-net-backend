@@ -42,6 +42,20 @@ class AuthController extends Controller
             ]);
             try {
                 $token = JWTAuth::fromUser($user);
+            
+            // Set HTTP-only cookie
+            $cookie = cookie(
+                'token', 
+                $token,
+                config('jwt.ttl'), // 1 hour
+                '/',
+                null, 
+                true, // secure
+                true, // httpOnly
+                false, 
+                'lax'
+            );
+
             } catch (JWTException $e) {
                 return response()->json([
                     'success' => false,
@@ -52,7 +66,7 @@ class AuthController extends Controller
         
             return response()->json([
                 'success' => true,
-                'message' => 'User created successfully !',
+                'message' => 'User created successfully!',
                 'data' => [
                     'user' => [
                         'id' => $user->id,
@@ -61,11 +75,9 @@ class AuthController extends Controller
                         'email' => $user->email,
                         'role' => $user->role,
                         'created_at' => $user->created_at,
-                    ],
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
+                    ]
                 ]
-            ], Response::HTTP_CREATED);
+            ], Response::HTTP_CREATED)->withCookie($cookie);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -111,6 +123,19 @@ class AuthController extends Controller
             
             $user = Auth::user();
             
+            // Set HTTP-only cookie
+            $cookie = cookie(
+                'token', 
+                $token,
+                config('jwt.ttl'), // 1 hour
+                '/',
+                null, 
+                true, // secure
+                true, // httpOnly
+                false, 
+                'lax'
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful',
@@ -121,11 +146,10 @@ class AuthController extends Controller
                         'last_name' => $user->last_name,
                         'email' => $user->email,
                         'role' => $user->role,
-                    ],
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
+                    ]
                 ]
-            ], Response::HTTP_OK);
+            ], Response::HTTP_OK)->withCookie($cookie);
+
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -138,10 +162,22 @@ class AuthController extends Controller
     public function logout()
     {
         try {
-            JWTAuth::invalidate(JWTAuth::getToken());
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'Failed to logout, please try again'], 500);
+           JWTAuth::invalidate(JWTAuth::getToken());
+            
+            // Clear the cookie
+            $cookie = cookie()->forget('token');
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully logged out'
+            ])->withCookie($cookie);
+            
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to logout, please try again',
+                'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
+            ], 500);
         }
-        return response()->json(['message' => 'Successfully logged out']);
     }
 }

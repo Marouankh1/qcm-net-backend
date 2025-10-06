@@ -11,6 +11,8 @@
 
 return [
 
+    'store_token_via' => 'cookie',
+    
     /*
     |--------------------------------------------------------------------------
     | JWT Authentication Secret
