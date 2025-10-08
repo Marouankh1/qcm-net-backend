@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response; // أضف هذا الاستيراد
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -49,7 +49,7 @@ class AuthController extends Controller
                     'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
                 ], 500);
             }
-        
+
             return response()->json([
                 'success' => true,
                 'message' => 'User created successfully !',
@@ -76,7 +76,7 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {   
+    {
         try {
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
@@ -108,9 +108,9 @@ class AuthController extends Controller
                     'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
                 ], 500);
             }
-            
+
             $user = Auth::user();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful',
