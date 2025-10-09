@@ -78,7 +78,8 @@ class AuthController extends Controller
                     ]
                 ]
             ], Response::HTTP_CREATED)->withCookie($cookie);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Sorry, something went wrong. Please try again in a few moments.',
