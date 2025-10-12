@@ -37,7 +37,7 @@ Route::middleware('jwt')->group(function () {
         Route::get('/student/{studentId}', [StudentResultsController::class, 'getStudentDetail']);
         Route::get('/student/{studentId}/quiz/{quizId}', [StudentResultsController::class, 'getQuizResults']);
     });
-
+    
     Route::get('/profile', [UserController::class, 'getProfile']);
     Route::put('/profile', [UserController::class, 'updateProfile']);
     Route::put('/password', [UserController::class, 'updatePassword']);
