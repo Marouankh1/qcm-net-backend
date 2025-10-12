@@ -259,11 +259,25 @@ class QuestionController extends Controller
             ], 500);
         }
     }
-    public function getByQuiz($quizId)
+    public function getByQuiz($quizId): JsonResponse
     {
-        $questions = Question::with('answers')
-            ->where('quiz_id', $quizId)
-            ->get();
-        return response()->json($questions);
+        try {
+            $questions = Question::with('choices')
+                ->where('quiz_id', $quizId)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Questions retrieved successfully',
+                'data' => $questions
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, something went wrong',
+                'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
     }
 }
