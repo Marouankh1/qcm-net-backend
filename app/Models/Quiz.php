@@ -32,6 +32,18 @@ class Quiz extends Model
         return $this->hasMany(Question::class);
     }
 
+    // Relation avec les tentatives de quiz (corrigée)
+    public function quizAttempts()
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
+    
+    // Relation avec les réponses étudiantes via les questions
+    public function studentAnswers()
+    {
+        return $this->hasManyThrough(StudentAnswer::class, Question::class);
+    }
+
     public function attempts()
     {
         return $this->hasMany(QuizAttempt::class);

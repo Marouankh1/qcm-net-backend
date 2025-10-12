@@ -7,62 +7,112 @@ use Illuminate\Http\Request;
 use App\Rules\TeacherExists;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class QuizController extends Controller
 {
     // GET /api/quizzes
-    public function index(Request $request)
-    {
-        try{
-            if (!Auth::check()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthenticated. Please log in.'
-                ], 401);
-            }
+    // public function index(Request $request)
+    // {
+    //     try{
+    //         if (!Auth::check()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Unauthenticated. Please log in.'
+    //             ], 401);
+    //         }
 
-            $teacherId = Auth::user()->id;
+    //         $teacherId = Auth::user()->id;
             
-            // Build query with search functionality
-            $query = Quiz::with('teacher:id,first_name,last_name,email')
-                ->where('teacher_id', $teacherId);
+    //         // Build query with search functionality
+    //         $query = Quiz::with('teacher:id,first_name,last_name,email')
+    //             ->where('teacher_id', $teacherId);
 
-            // Add search filter if provided
-            if ($request->has('search') && !empty($request->search)) {
-                $searchTerm = $request->search;
-                $query->where(function($q) use ($searchTerm) {
-                    $q->where('title', 'LIKE', "%{$searchTerm}%")
-                      ->orWhere('description', 'LIKE', "%{$searchTerm}%");
-                });
-            }
+    //         // Add search filter if provided
+    //         if ($request->has('search') && !empty($request->search)) {
+    //             $searchTerm = $request->search;
+    //             $query->where(function($q) use ($searchTerm) {
+    //                 $q->where('title', 'LIKE', "%{$searchTerm}%")
+    //                   ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+    //             });
+    //         }
 
-            // Add order by
-            $quizzes = $query->orderByDesc('created_at')
-                ->get();
+    //         // Add order by
+    //         $quizzes = $query->orderByDesc('created_at')
+    //             ->get();
 
-            return response()->json([
-                'success' => true,
-                'data' => $quizzes,
-                'message' => 'Quizzes retrieved successfully'
-            ]);
-        }
-        catch (JWTException $e) {
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $quizzes,
+    //             'message' => 'Quizzes retrieved successfully'
+    //         ]);
+    //     }
+    //     catch (JWTException $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Could not create token.',
+    //             'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
+    //         ], 500);
+    //     }
+    //     catch (Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Sorry, something went wrong. Please try again in a few moments.',
+    //             'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
+    //         ], 500);
+    //     }
+    // }
+    public function index(Request $request)
+{
+    try{
+        if (!Auth::check()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Could not create token.',
-                'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+                'message' => 'Unauthenticated. Please log in.'
+            ], 401);
         }
-        catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sorry, something went wrong. Please try again in a few moments.',
-                'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+
+        $teacherId = Auth::user()->id;
+        
+        // Build query with search functionality
+        $query = Quiz::with('teacher:id,first_name,last_name,email')
+            ->withCount([
+                'questions',
+                'quizAttempts as participants_count' => function($query) {
+                    $query->select(DB::raw('COUNT(DISTINCT student_id)'));
+                }
+            ])
+            ->where('teacher_id', $teacherId);
+
+        // Add search filter if provided
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('title', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+            });
         }
+
+        // Add order by
+        $quizzes = $query->orderByDesc('created_at')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $quizzes,
+            'message' => 'Quizzes retrieved successfully'
+        ]);
     }
+    catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Sorry, something went wrong. Please try again in a few moments.',
+            'error' => env('APP_DEBUG') ? $e->getMessage() : 'Internal server error'
+        ], 500);
+    }
+}
 
     //  GET /api/quizzes/{id}
     public function show($id)
