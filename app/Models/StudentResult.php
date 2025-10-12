@@ -34,7 +34,7 @@ class StudentResult extends Model
 
     public function quiz()
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Quiz::class, 'quiz_id');
     }
 
     public function attempt()
@@ -59,5 +59,10 @@ class StudentResult extends Model
         if ($percentage >= 70) return 'C';
         if ($percentage >= 60) return 'D';
         return 'F';
+    }
+
+    public function studentResults()
+    {
+        return $this->hasMany(StudentResult::class, 'quiz_id');
     }
 }

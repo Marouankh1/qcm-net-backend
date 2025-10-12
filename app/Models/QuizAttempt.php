@@ -27,23 +27,26 @@ class QuizAttempt extends Model
 
     public function quiz()
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Quiz::class, 'quiz_id');
     }
 
-    public function studentResults()
+    // Relation au singulier (un attempt a un résultat)
+    public function studentResult()
     {
         return $this->hasOne(StudentResult::class, 'attempt_id');
     }
 
+    // Relation au pluriel (pour d'autres usages)
+    public function studentResults()
+    {
+        return $this->hasMany(StudentResult::class, 'attempt_id');
+    }
+
     public function studentAnswers()
     {
-        return $this->hasManyThrough(
-            StudentAnswer::class,
-            StudentResult::class,
-            'attempt_id',
-            'student_id',
-            'id',
-            'student_id'
-        );
+        return $this->hasMany(StudentAnswer::class, 'student_id', 'student_id')
+            ->whereHas('question', function($query) {
+                $query->where('quiz_id', $this->quiz_id);
+            });
     }
 }

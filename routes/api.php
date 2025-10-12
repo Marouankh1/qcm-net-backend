@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\QuestionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentResultsController;
 use App\Http\Controllers\UserController;    
 
@@ -37,11 +38,23 @@ Route::middleware('jwt')->group(function () {
         Route::get('/student/{studentId}', [StudentResultsController::class, 'getStudentDetail']);
         Route::get('/student/{studentId}/quiz/{quizId}', [StudentResultsController::class, 'getQuizResults']);
     });
-    
+
     Route::get('/profile', [UserController::class, 'getProfile']);
     Route::put('/profile', [UserController::class, 'updateProfile']);
     Route::put('/password', [UserController::class, 'updatePassword']);
     Route::put('/account', [UserController::class, 'updateAccount']);
+
+    // Routes pour les étudiants
+    Route::prefix('student')->middleware('jwt')->group(function () {
+        Route::get('/quizzes', [StudentController::class, 'getAvailableQuizzes']);
+        Route::get('/quizzes/{id}', [StudentController::class, 'getQuizDetails']);
+        Route::get('/attempts', [StudentController::class, 'getMyAttempts']);
+        Route::get('/attempts/{attemptId}/results', [StudentController::class, 'getAttemptResults']);
+        Route::get('/student/attempts/{attemptId}/answers', [StudentController::class, 'getAttemptAnswers']);
+        Route::post('/attempts', [StudentController::class, 'startQuizAttempt']);
+        Route::post('/answers', [StudentController::class, 'submitAnswer']);
+        Route::post('/attempts/{attemptId}/submit', [StudentController::class, 'submitQuizAttempt']);
+    });
 });
 
 
