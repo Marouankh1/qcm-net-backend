@@ -13,7 +13,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 class QuizController extends Controller
 {
     // GET /api/quizzes
-    public function index()
+    public function index(Request $request)
     {
         try{
             if (!Auth::check()) {
@@ -25,12 +25,28 @@ class QuizController extends Controller
 
             $teacherId = Auth::user()->id;
             
-            $quizzes = Quiz::with('teacher:id,first_name,last_name,email')
-                ->where('teacher_id', $teacherId) // Add this filter
-                ->orderByDesc('created_at')
+            // Build query with search functionality
+            $query = Quiz::with('teacher:id,first_name,last_name,email')
+                ->where('teacher_id', $teacherId);
+
+            // Add search filter if provided
+            if ($request->has('search') && !empty($request->search)) {
+                $searchTerm = $request->search;
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('title', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+                });
+            }
+
+            // Add order by
+            $quizzes = $query->orderByDesc('created_at')
                 ->get();
 
-            return response()->json($quizzes);
+            return response()->json([
+                'success' => true,
+                'data' => $quizzes,
+                'message' => 'Quizzes retrieved successfully'
+            ]);
         }
         catch (JWTException $e) {
             return response()->json([
@@ -58,10 +74,17 @@ class QuizController extends Controller
             ])->find($id);
 
             if (!$quiz) {
-                return response()->json(['message' => 'Quiz not found'], 404);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Quiz not found'
+                ], 404);
             }
 
-            return response()->json($quiz);
+            return response()->json([
+                'success' => true,
+                'data' => $quiz,
+                'message' => 'Quiz retrieved successfully'
+            ]);
         }
         catch (JWTException $e) {
             return response()->json([
