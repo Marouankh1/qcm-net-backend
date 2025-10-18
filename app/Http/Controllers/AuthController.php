@@ -42,16 +42,15 @@ class AuthController extends Controller
             ]);
             try {
                 $token = JWTAuth::fromUser($user);
-            
-                // Set HTTP-only cookie
+
                 $cookie = cookie(
                     'token', 
                     $token,
-                    config('jwt.ttl'), // 1 hour
+                    config('jwt.ttl'),
                     '/',
                     null, 
-                    true, // secure
-                    true, // httpOnly
+                    true,
+                    true,
                     false, 
                     'lax'
                 );
@@ -123,16 +122,15 @@ class AuthController extends Controller
             }
             
             $user = Auth::user();
-            
-            // Set HTTP-only cookie
+
             $cookie = cookie(
                 'token', 
                 $token,
-                config('jwt.ttl'), // 1 hour
+                config('jwt.ttl'),
                 '/',
                 null, 
-                true, // secure
-                true, // httpOnly
+                true,
+                true,
                 false, 
                 'lax'
             );
@@ -163,9 +161,8 @@ class AuthController extends Controller
     public function logout()
     {
         try {
-           JWTAuth::invalidate(JWTAuth::getToken());
-            
-            // Clear the cookie
+            JWTAuth::invalidate(JWTAuth::getToken());
+
             $cookie = cookie()->forget('token');
             
             return response()->json([
