@@ -41,9 +41,9 @@ class StudentResultsController extends Controller
             // Filtre par recherche
             if (!empty($search)) {
                 $query->where(function($q) use ($search) {
-                    $q->where('first_name', 'ILIKE', "%{$search}%")
-                      ->orWhere('last_name', 'ILIKE', "%{$search}%")
-                      ->orWhere('email', 'ILIKE', "%{$search}%");
+                    $q->where('first_name', 'LIKE', "%{$search}%")
+                      ->orWhere('last_name', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%");
                 });
             }
 
