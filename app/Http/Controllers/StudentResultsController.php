@@ -157,9 +157,13 @@ class StudentResultsController extends Controller
                 ->whereHas('quiz', function($query) use ($teacherId) {
                     $query->where('teacher_id', $teacherId);
                 })
-                ->with(['quiz.questions.choices', 'quiz.questions.studentAnswers' => function($query) use ($studentId) {
-                    $query->where('student_id', $studentId);
-                }])
+                ->with([
+                    'student', // AJOUTER CETTE LIGNE pour charger les infos de l'étudiant
+                    'quiz.questions.choices', 
+                    'quiz.questions.studentAnswers' => function($query) use ($studentId) {
+                        $query->where('student_id', $studentId);
+                    }
+                ])
                 ->firstOrFail();
 
             // Détails des réponses
