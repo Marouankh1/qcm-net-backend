@@ -21,7 +21,13 @@ class StudentResultsController extends Controller
             $search = $request->get('search', '');
             $quizId = $request->get('quiz_id', '');
 
+            // Modifier la requête pour ne prendre que les étudiants qui ont des résultats pour les quizzes du prof
             $query = User::where('role', 'student')
+                ->whereHas('studentResults', function($query) use ($teacherId) {
+                    $query->whereHas('quiz', function($q) use ($teacherId) {
+                        $q->where('teacher_id', $teacherId);
+                    });
+                })
                 ->withCount(['studentResults as quizzes_attempted' => function($query) use ($teacherId) {
                     $query->whereHas('quiz', function($q) use ($teacherId) {
                         $q->where('teacher_id', $teacherId);
@@ -42,13 +48,13 @@ class StudentResultsController extends Controller
             if (!empty($search)) {
                 $query->where(function($q) use ($search) {
                     $q->where('first_name', 'LIKE', "%{$search}%")
-                      ->orWhere('last_name', 'LIKE', "%{$search}%")
-                      ->orWhere('email', 'LIKE', "%{$search}%");
+                    ->orWhere('last_name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
                 });
             }
 
             // Filtre par quiz
-            if (!empty($quizId)) {
+            if (!empty($quizId) && $quizId !== 'all') {
                 $query->whereHas('studentResults', function($q) use ($quizId) {
                     $q->where('quiz_id', $quizId);
                 });
