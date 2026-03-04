@@ -13,15 +13,15 @@ pipeline {
         }
         stage('Build Image') {
             steps {
-                sh "docker build -t ${REGISTRY}:latest -t ${REGISTRY}:${BUILD_NUMBER} ."
+                bat "docker build -t ${REGISTRY}:latest -t ${REGISTRY}:${BUILD_NUMBER} ."
             }
         }
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    sh "echo \$PASS | docker login -u \$USER --password-stdin"
-                    sh "docker push ${REGISTRY}:latest"
-                    sh "docker push ${REGISTRY}:${BUILD_NUMBER}"
+                    bat "echo %PASS% | docker login -u %USER% --password-stdin"
+                    bat "docker push ${REGISTRY}:latest"
+                    bat "docker push ${REGISTRY}:${BUILD_NUMBER}"
                 }
             }
         }
