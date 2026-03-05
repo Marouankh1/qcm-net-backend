@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_HUB_USER = "marouankhdev1" 
-        IMAGE_NAME = "backend-qcm-net" 
+        IMAGE_NAME = "qcm-net-backend" 
         REGISTRY = "${DOCKER_HUB_USER}/${IMAGE_NAME}"
     }
     stages {
