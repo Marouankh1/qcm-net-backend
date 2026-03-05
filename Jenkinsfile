@@ -28,10 +28,14 @@ pipeline {
     }
     post {
         success {
-            slackSend (color: '#00FF00', message: "SUCCESS: Job '${env.JOB_NAME}' [${env.BUILD_NUMBER}] (${env.BUILD_URL})")
+            slackSend(color: '#00FF00', 
+                    message: "SUCCESS: Job '${env.JOB_NAME}' [${env.BUILD_NUMBER}]", 
+                    tokenCredentialId: 'slack-webhook-url')
         }
         failure {
-            slackSend (color: '#FF0000', message: "FAILURE: Job '${env.JOB_NAME}' [${env.BUILD_NUMBER}] (${env.BUILD_URL})")
+            slackSend(color: '#FF0000', 
+                    message: "FAILURE: Job '${env.JOB_NAME}' [${env.BUILD_NUMBER}]", 
+                    tokenCredentialId: 'slack-webhook-url')
         }
     }
 }
