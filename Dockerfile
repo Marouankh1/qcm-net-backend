@@ -13,5 +13,5 @@ RUN cp .env.example .env
 RUN php artisan key:generate
 RUN php artisan jwt:secret
 
-EXPOSE 5173
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=5173"]
+EXPOSE 5174
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=5174"]
