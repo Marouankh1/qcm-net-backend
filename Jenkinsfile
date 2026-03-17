@@ -13,7 +13,7 @@ pipeline {
         stage('SAST: SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') { 
-                    bat "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=qcm-net-back -Dsonar.sources=."
+                    bat "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=qcm-net-back -Dsonar.sources=. -Dsonar.exclusions=vendor/**,storage/**,tests/**"
                 }
             }
         }
