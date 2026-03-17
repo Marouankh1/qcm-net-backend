@@ -4,16 +4,23 @@ pipeline {
         DOCKER_HUB_USER = "marouankhdev1" 
         IMAGE_NAME = "qcm-net-backend" 
         REGISTRY = "${DOCKER_HUB_USER}/${IMAGE_NAME}"
+        SCANNER_HOME = tool 'sonar-scanner'
     }
     stages {
         stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('SAST: SonarQube') {
             steps {
-                checkout scm
+                withSonarQubeEnv('SonarQube-Server') { 
+                    bat "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=qcm-net-back -Dsonar.sources=."
+                }
             }
         }
-        stage('Build Image') {
+        stage('Build & Image Scan') {
             steps {
                 bat "docker build -t ${REGISTRY}:latest -t ${REGISTRY}:${BUILD_NUMBER} ."
+                bat "C:\\trivy\\trivy.exe image --severity HIGH,CRITICAL ${REGISTRY}:latest"
             }
         }
         stage('Push to Docker Hub') {
