@@ -35,13 +35,13 @@ pipeline {
     }
     post {
         success {
-            slackSend(color: '#00FF00',   
+            slackSend(color: '#00FF00',
                     channel: '#qcm-net-channel',
                     message: "SUCCESS: Job '${env.JOB_NAME}' [${env.BUILD_NUMBER}]", 
                     tokenCredentialId: 'slack-webhook-url')
         }
         failure {
-            slackSend(color: '#FF0000',   
+            slackSend(color: '#FF0000',
                     channel: '#qcm-net-channel',
                     message: "FAILURE: Job '${env.JOB_NAME}' [${env.BUILD_NUMBER}]", 
                     tokenCredentialId: 'slack-webhook-url')
